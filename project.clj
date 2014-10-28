@@ -5,5 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [overtone "0.9.1"]]
-  :profiles {:dev {org.clojure/tools.namespace "0.2.7"}
-             :source-paths ["dev"]})
+  :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.7"]]
+                   :source-paths ["dev"]}})

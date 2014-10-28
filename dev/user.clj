@@ -1,2 +1,7 @@
 (ns user
-  (:require [clojure.tools.namespace.repl :refer [refresh refresh-all]]))
+  (:use overtone.core))
+
+(defn start []
+  (boot-server)
+  (require 'user2)
+  (in-ns 'user2))
