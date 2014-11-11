@@ -34,9 +34,13 @@
     [4 #(play-scale-note root target-degree)]
 
     ; Walk down to the root
-    (if (= direction :up)
-      (seq-walk-in-key root target-degree 7)
-      (seq-walk-in-key root target-degree 0))))
+    (seq-walk-in-key 
+      root target-degree
+      (case direction
+        :closest (if (> target-degree 3) 7 0)
+        :up 7
+        :down 0
+        0))))
 
 (defn random-seq-degree-in-key
   ([]
