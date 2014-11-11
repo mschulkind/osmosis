@@ -38,20 +38,43 @@
       (seq-walk-in-key root target-degree 7)
       (seq-walk-in-key root target-degree 0))))
 
+(defn random-seq-degree-in-key
+  ([]
+   (random-seq-degree-in-key
+     (find-note-name (rand-nth 
+                       (range (note :A2) 
+                              (note :A4))))
+     (rand-nth [:up :down])))
+
+  ([key direction]
+   (seq-degree-in-key 
+     key
+     (rand-int 8)
+     direction)))
+
+(defn flatten-max-1
+  [seq]
+  (filter #(and (coll? %)
+                (not (coll? (first %))))
+          (tree-seq coll?
+                    identity 
+                    seq)))
+
 (defn play-seq
-  ([seq] (play-seq seq (c/metronome 110) 0))
+  ([seq] (play-seq (flatten-max-1 seq) (c/metronome 110) 0))
   ([seq metro current-beat]
    (let [s (first seq)
          duration (first s)
-         soundf (last s)]
+         soundf (last s)
+         next-beat (+ current-beat duration)]
      (when s
-       (if (seq? s)
-         (play-seq s metro current-beat)
-         (c/at (metro current-beat) (soundf)))
-       (recur 
-         (rest seq) 
-         metro 
-         (+ current-beat
-            (if (seq? s)
-              (apply + (map first s))
-              duration)))))))
+       (c/at (metro current-beat) (soundf))
+       (c/apply-by (metro next-beat) 
+                   #'play-seq 
+                   [(rest seq) metro next-beat])))))
+
+(defn loop-seqf
+  [seqf]
+  (concat [(seqf)
+           [4 #()]] 
+          (lazy-seq (loop-seqf seqf))))
