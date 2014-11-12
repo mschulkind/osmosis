@@ -1,7 +1,8 @@
 (ns osmosis.core
   (:require [overtone.core :as c])
   (:use overtone.inst.sampled-piano
-        overtone.music.pitch))
+        overtone.music.pitch
+        plumbing.core))
 
 (defn play-note [n] (sampled-piano (note n) :decay 5 :sustain 0))
 (defn play-notes [notes] (doseq [n notes] (play-note n)))
@@ -42,19 +43,16 @@
         :down 0
         0))))
 
-(defn random-seq-degree-in-key
-  ([]
-   (random-seq-degree-in-key
-     (find-note-name (rand-nth 
-                       (range (note :A2) 
-                              (note :A4))))
-     (rand-nth [:up :down])))
-
-  ([key direction]
-   (seq-degree-in-key 
-     key
-     (rand-int 8)
-     direction)))
+(defnk random-seq-degree-in-key
+  [{root (find-note-name (rand-nth 
+                           (range (note :A2) 
+                                  (note :A4))))}
+   {degree (rand-int 8)}
+   {direction :closest}]
+  (seq-degree-in-key 
+    root
+    degree
+    direction))
 
 (defn flatten-max-1
   [seq]
