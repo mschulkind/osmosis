@@ -43,10 +43,14 @@
         :down 0
         0))))
 
+(defn rand-note
+  [from to]
+  (find-note-name (rand-nth 
+                    (range (note from) 
+                           (note to)))))
+
 (defnk random-seq-degree-in-key
-  [{root (find-note-name (rand-nth 
-                           (range (note :A2) 
-                                  (note :A4))))}
+  [{root (rand-note :A2 :B4)}
    {degree (rand-int 8)}
    {direction :closest}]
   (seq-degree-in-key 
