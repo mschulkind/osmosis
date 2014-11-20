@@ -1,7 +1,7 @@
-(ns user
-  (:use overtone.core))
+(ns user)
 
-(defn start []
-  (boot-server)
-  (require 'user2)
-  (in-ns 'user2))
+;(defn start []
+  ;(use '(overtone core))
+  ;(boot-server)
+  ;(require 'user2)
+  ;(in-ns 'user2))

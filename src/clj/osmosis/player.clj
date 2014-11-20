@@ -1,4 +1,4 @@
-(ns osmosis.core
+(ns osmosis.player
   (:require [overtone.core :as c])
   (:use overtone.inst.sampled-piano
         overtone.music.pitch
