@@ -1,19 +1,18 @@
 (ns osmosis.player
-  (:require [overtone.core :as c])
-  (:use overtone.inst.sampled-piano
-        overtone.music.pitch
-        plumbing.core))
+  (:require [overtone.music.pitch :as pitch]
+            [plumbing.core :as pc :include-macros true]))
 
-(defn play-note [n] (sampled-piano (note n) :decay 5 :sustain 0))
+;(defn play-note [n] (sampled-piano (note n) :decay 5 :sustain 0))
+(defn play-note [n] true)
 (defn play-notes [notes] (doseq [n notes] (play-note n)))
 
 (defn play-scale-note 
   [root nth]
-  (play-note (+ (nth-interval nth) (note root))))
+  (play-note (+ (pitch/nth-interval nth) (pitch/note root))))
 
 (defn play-chord-degree
   [root degree]
-  (play-notes (chord-degree degree root :ionian)))
+  (play-notes (pitch/chord-degree degree root :ionian)))
 
 (defn seq-walk-in-key
   [root from-degree to-degree]
@@ -45,11 +44,11 @@
 
 (defn rand-note
   [from to]
-  (find-note-name (rand-nth 
-                    (range (note from) 
-                           (note to)))))
+  (pitch/find-note-name (rand-nth 
+                          (range (pitch/note from) 
+                                 (pitch/note to)))))
 
-(defnk random-seq-degree-in-key
+(pc/defnk random-seq-degree-in-key
   [{root (rand-note :A2 :B4)}
    {degree (rand-int 8)}
    {direction :closest}]
@@ -66,18 +65,18 @@
                     identity 
                     seq)))
 
-(defn play-seq
-  ([seq] (play-seq (flatten-max-1 seq) (c/metronome 110) 0))
-  ([seq metro current-beat]
-   (let [s (first seq)
-         duration (first s)
-         soundf (last s)
-         next-beat (+ current-beat duration)]
-     (when s
-       (c/at (metro current-beat) (soundf))
-       (c/apply-by (metro next-beat) 
-                   #'play-seq 
-                   [(rest seq) metro next-beat])))))
+;(defn play-seq
+  ;([seq] (play-seq (flatten-max-1 seq) (c/metronome 110) 0))
+  ;([seq metro current-beat]
+   ;(let [s (first seq)
+         ;duration (first s)
+         ;soundf (last s)
+         ;next-beat (+ current-beat duration)]
+     ;(when s
+       ;(c/at (metro current-beat) (soundf))
+       ;(c/apply-by (metro next-beat) 
+                   ;#'play-seq 
+                   ;[(rest seq) metro next-beat])))))
 
 (defn loop-seqf
   [seqf]
