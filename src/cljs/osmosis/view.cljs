@@ -1,6 +1,6 @@
 (ns osmosis.view
   (:require
-    [om-tools.core :refer-macros [defcomponent]]
+    [om-tools.core :refer-macros [defcomponentk]]
     [om-tools.dom :include-macros true :as dom]
     [om.core :as om]
     [om-bootstrap.button :as b]
@@ -8,13 +8,13 @@
 
 (defonce app-state {:playing? false})
 
-(defcomponent app [data owner]
-  (render-state 
-    [_ state]
+(defcomponentk app [data owner state]
+  (render
+    [_]
     (let [attrs {:bs-size "large"
-                 :on-click #(om/set-state! owner 
-                                        :playing? (not (:playing? state)))}]
-      (if (:playing? state)
+                 :on-click #(swap! state assoc 
+                                   :playing? (not (:playing? @state)))}]
+      (if (:playing? @state)
         (b/button (assoc attrs :bs-style "danger") 
                   (r/glyphicon {:glyph "stop"} " Stop"))
         (b/button (assoc attrs :bs-style "success") 

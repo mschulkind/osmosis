@@ -25,6 +25,7 @@
   (resources "/js" {:root "vendor/bootstrap/js"})
   (resources "/fonts" {:root "vendor/bootstrap/fonts"})
   (resources "/css" {:root "vendor/bootstrap/css"})
+
   (GET "/*" req (page)))
 
 (defn run [create-http-handler]
