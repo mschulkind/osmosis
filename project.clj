@@ -13,9 +13,7 @@
                  [overtone "0.10-SNAPSHOT"]
                  [prismatic/plumbing "0.3.5"]
                  [ring "1.3.1"]
-                 [om "0.8.0-alpha2"]
-                 [prismatic/om-tools "0.3.6"]
-                 [racehub/om-bootstrap "0.3.1"]]
+                 [reagent "0.4.3"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]
             [lein-figwheel "0.1.4-SNAPSHOT"]

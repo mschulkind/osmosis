@@ -3,8 +3,12 @@
   %link(href='css/application.css' rel='stylesheet' type='text/css')
   %script(type='text/javascript' src='js/goog/base.js')
   %script(type='text/javascript' src='js/application.js')
-  %script(type='text/javascript') goog.require('osmosis.core')
 
-%body
-  %h1 Osmosis!
+%body.container
+  .jumbotron
+    %h1 Osmosis
+    %p Train your ear while you work.
+
   #app
+
+  %script(type='text/javascript') goog.require('osmosis.core')

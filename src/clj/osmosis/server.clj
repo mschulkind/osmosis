@@ -11,16 +11,22 @@
   [:body] 
   (en/append 
     (en/html [:script {:type "text/javascript"} "goog.require('osmosis.dev')"]))
-  
+
   [:head]
-  (en/prepend
-    (en/html [:script {:type "text/javascript" :src "js/react.js"}])))
+  (en/do->
+    (en/prepend
+      (en/html [:link {:rel "stylesheet" 
+                       :type "text/css"
+                       :href "css/bootstrap.css"}]))
+
+    (en/append
+      (en/html [:script {:type "text/javascript" :src "js/react.js"}]))))
 
 (defroutes routes
   (resources "/css" {:root "public/css"})
   (resources "/js" {:root "public/js"})
 
-  (resources "/js" {:root "react/"})
+  (resources "/js" {:root "reagent/"})
 
   (resources "/js" {:root "vendor/bootstrap/js"})
   (resources "/fonts" {:root "vendor/bootstrap/fonts"})

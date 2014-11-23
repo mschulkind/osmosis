@@ -1,27 +1,26 @@
 (ns osmosis.view
   (:require
-    [om-tools.core :refer-macros [defcomponentk]]
-    [om-tools.dom :include-macros true :as dom]
-    [om.core :as om]
-    [om-bootstrap.button :as b]
-    [om-bootstrap.random :as r]))
+    [reagent.core :as reagent :refer [atom]]))
 
-(defonce app-state {:playing? false})
+(defonce app-state (atom {:playing? false}))
 
-(defcomponentk app [data owner state]
-  (render
-    [_]
-    (let [attrs {:bs-size "large"
-                 :on-click #(swap! state assoc 
-                                   :playing? (not (:playing? @state)))}]
-      (if (:playing? @state)
-        (b/button (assoc attrs :bs-style "danger") 
-                  (r/glyphicon {:glyph "stop"} " Stop"))
-        (b/button (assoc attrs :bs-style "success") 
-                  (r/glyphicon {:glyph "play"} " Play"))))))
+(defn play-button [state]
+  (let [playing? (:playing? @state)
+        [style icon text] (if playing?
+                            ["danger" "stop" "Stop"]
+                            ["success" "play" "Play"])]
+  [:button 
+   {:type "button" 
+    :className (str "btn btn-lg btn-" style)
+    :on-click #(swap! state assoc :playing? (not playing?))}
+     [:span {:className (str "glyphicon glyphicon-" icon)}] (str " " text)
+   ]))
+
+(defn app [state]
+  [:div {:class "player"}
+   [play-button state]])
 
 (defn mount-components []
-  (om/root
-    app
-    app-state
-    {:target (. js/document (getElementById "app"))}))
+  (reagent/render-component
+    [app app-state]
+    (. js/document (getElementById "app"))))
