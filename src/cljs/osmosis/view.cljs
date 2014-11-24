@@ -20,17 +20,18 @@
 
 (defn direction-selector [state]
   [:div
-  [:h3 "Walk Direction"]
-  (for [[value label] [[:closest "Closest"]
-                        [:up "Up"]
-                        [:down "Down"]]]
-     [:div {:class "radio"} 
-      [:label 
-       [:input {:type "radio" 
-                :name "direction"
-                :default-checked (= value (:direction @state))
-                :on-change #(swap! state assoc :direction value)}] 
-       label]])])
+   [:h3 "Walk Direction"]
+   (doall (for [[value label] [[:closest "Closest"]
+                               [:up "Up"]
+                               [:down "Down"]]]
+            ^{:key value}
+            [:div {:class "radio"} 
+             [:label 
+              [:input {:type "radio" 
+                       :name "direction"
+                       :checked (= value (:direction @state))
+                       :on-change #(swap! state assoc :direction value)}] 
+              label]]))])
 
 (defn lowest-note-selector [state])
 
