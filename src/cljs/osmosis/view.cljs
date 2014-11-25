@@ -1,7 +1,8 @@
 (ns osmosis.view
   (:require
     [reagent.core :as reagent :refer [atom]]
-    [reagent.debug :refer-macros [dbg]]))
+    [reagent.debug :refer-macros [dbg]]
+    [osmosis.player :as player]))
 
 (defonce app-state (atom {:playing? false
                           :direction :closest}))
@@ -14,7 +15,8 @@
   [:button 
    {:type "button" 
     :class (str "btn btn-lg btn-" style)
-    :on-click #(swap! state assoc :playing? (not playing?))}
+    :on-click #(do (player/init-samples) 
+                   (swap! state assoc :playing? (not playing?)))}
      [:span {:className (str "glyphicon glyphicon-" icon)}] (str " " text)
    ]))
 

@@ -1,22 +1,60 @@
 (ns osmosis.player
-  (:require [overtone.music.pitch :as pitch]
-            [plumbing.core :as pc :include-macros true]))
+  (:require-macros [cljs.core.async.macros :refer [go-loop alt!]])
+  (:require [osmosis.debug :refer [log]] 
+            [overtone.music.pitch :as pitch]
+            [plumbing.core :as pc :include-macros true]
+            [cljs.core.async :as async]
+            [clojure.string :as string]))
 
-;(defn play-note [n] (sampled-piano (note n) :decay 5 :sustain 0))
-(defn play-note [n] true)
-(defn play-notes [notes] (doseq [n notes] (play-note n)))
+; Needed for mobile. Needs to be called at least once from a touch event before
+; playing sounds.
+(defonce samples-initted (atom false))
+(defn init-samples []
+  (when-not @samples-initted
+    (doseq [a (array-seq (. js/document (getElementsByTagName "audio")))]
+      (.play a)
+      (.pause a)))
+  (reset! samples-initted true))
 
-(defn play-scale-note 
+(defn pitch-using-flats [pitch-keyword]
+  (let [pitch-str (name pitch-keyword)]
+    (if (= \# (second pitch-str))
+    (let [octave (last pitch-str)]
+      (keyword (str ({"G#" "AB" 
+                      "A#" "BB" 
+                      "C#" "DB" 
+                      "D#" "EB" 
+                      "F#" "GB"}
+                     (subs (name pitch-str) 0 2))
+                    octave)))
+    pitch-keyword)))
+
+(defn play-pitch [pitch]
+  (let [sample-name (str "sample-" 
+                         (string/upper-case (name (pitch-using-flats pitch))))
+        sample (. js/document 
+                  (getElementById sample-name))]
+    ; Some browsers (chrome desktop) don't allow setting currentTime, so we
+    ; fall back to calling load.
+    (aset sample "currentTime" 0)
+    (when-not (= 0 (.-currentTime sample)) (.load sample))
+    (.play sample)))
+
+(defn play-pitches [pitches]
+  (doseq [p pitches]
+    (play-pitch p)))
+
+(defn scale-note 
   [root nth]
-  (play-note (+ (pitch/nth-interval nth) (pitch/note root))))
+  (pitch/find-note-name (+ (pitch/nth-interval nth) (pitch/note root))))
 
-(defn play-chord-degree
+(defn chord-degree
   [root degree]
-  (play-notes (pitch/chord-degree degree root :ionian)))
+  (map pitch/find-note-name (pitch/chord-degree degree root :ionian 3)))
 
 (defn seq-walk-in-key
   [root from-degree to-degree]
-  (map (fn [n] [1 #(play-scale-note root n)])
+  (map (fn [n] [1 (scale-note root n)])
        (if (> to-degree from-degree)
          (range from-degree (inc to-degree))
          (range from-degree (dec to-degree) -1))))
@@ -25,13 +63,13 @@
   [root target-degree direction]
   (list
     ; Outline the key
-    [2 #(play-chord-degree root :i)]
-    [1 #(play-chord-degree root :iv)]
-    [1 #(play-chord-degree root :v)]
-    [2 #(play-chord-degree root :i)]
+    [2 (chord-degree root :i)]
+    [1 (chord-degree root :iv)]
+    [1 (chord-degree root :v)]
+    [2 (chord-degree root :i)]
 
     ; Play the target note
-    [4 #(play-scale-note root target-degree)]
+    [4 (scale-note root target-degree)]
 
     ; Walk down to the root
     (seq-walk-in-key 
@@ -49,7 +87,7 @@
                                  (pitch/note to)))))
 
 (pc/defnk random-seq-degree-in-key
-  [{root (rand-note :A2 :B4)}
+  [{root (rand-note :C2 :C3)}
    {degree (rand-int 8)}
    {direction :closest}]
   (seq-degree-in-key 
@@ -60,37 +98,45 @@
 (defn flatten-max-1
   [seq]
   (filter #(and (coll? %)
-                (not (coll? (first %))))
+                (number? (first %)))
           (tree-seq coll?
                     identity 
                     seq)))
 
-;(defn play-seq
-  ;([seq] (play-seq (flatten-max-1 seq) (c/metronome 110) 0))
-  ;([seq metro current-beat]
-   ;(let [s (first seq)
-         ;duration (first s)
-         ;soundf (last s)
-         ;next-beat (+ current-beat duration)]
-     ;(when s
-       ;(c/at (metro current-beat) (soundf))
-       ;(c/apply-by (metro next-beat) 
-                   ;#'play-seq 
-                   ;[(rest seq) metro next-beat])))))
-
-(defn loop-seqf
-  [seqf]
-  (concat [(seqf)
-           [4 #()]] 
-          (lazy-seq (loop-seqf seqf))))
-
 (defonce options (atom {}))
+(defonce control-ch (atom nil))
 
-(defn start []
-  (println "start"))
+(defn ms-per-beat [tempo]
+  (* 1000 (/ 60 tempo)))
 
 (defn stop []
-  (println "stop"))
+  (if @control-ch (async/put! @control-ch :stop))
+  (reset! control-ch nil))
+
+(defn start []
+  (stop)
+  (reset! control-ch (async/chan))
+  (let [tempo 110]
+    (go-loop
+        [notes []]
+        (if (empty? notes)
+          ; We're empty, or just starting. Fill us up with a new set of notes.
+          (let [new-notes (flatten-max-1 (random-seq-degree-in-key @options))]
+            (recur 
+              ; Extend the last note so we get a delay before looping.
+              (concat (butlast new-notes) [(assoc (last new-notes) 0 4)])))
+          (let
+            [[duration pitch] (first notes)]
+            (if (coll? pitch)
+              (play-pitches pitch)
+              (play-pitch pitch))
+            (when 
+              (= :play-next
+                 (alt!
+                   @control-ch :stop
+                   (async/timeout 
+                     (* duration (ms-per-beat tempo))) :play-next)) 
+              (recur (rest notes))))))))
 
 (defn set-options [os]
   (swap! options merge os))

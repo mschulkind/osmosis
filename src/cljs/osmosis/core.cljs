@@ -17,8 +17,6 @@
   (let [view-state (view/mount-components)]
     (remove-watch view-state :player)
     (add-watch view-state :player player-watcher)
-    (println "added")
-    (println view-state)
     (update-player-options @view-state)
     
     (when (:playing? @view-state)
