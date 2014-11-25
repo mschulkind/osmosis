@@ -50,4 +50,5 @@
 (defn mount-components []
   (reagent/render-component
     [app app-state]
-    (. js/document (getElementById "app"))))
+    (. js/document (getElementById "app")))
+  app-state)

@@ -83,3 +83,14 @@
   (concat [(seqf)
            [4 #()]] 
           (lazy-seq (loop-seqf seqf))))
+
+(defonce options (atom {}))
+
+(defn start []
+  (println "start"))
+
+(defn stop []
+  (println "stop"))
+
+(defn set-options [os]
+  (swap! options merge os))

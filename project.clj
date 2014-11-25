@@ -16,7 +16,7 @@
                  [reagent "0.4.3"]]
 
   :plugins [[lein-cljsbuild "1.0.3"]
-            [lein-figwheel "0.1.4-SNAPSHOT"]
+            [lein-figwheel "0.1.5-SNAPSHOT"]
             [com.cemerick/austin "0.1.4"]
             [lein-haml-sass "0.2.7-SNAPSHOT"]
             [lein-environ "1.0.0"]]
@@ -24,7 +24,7 @@
   :main osmosis.core
 
   :profiles 
-  {:dev {:dependencies [[figwheel "0.1.4-SNAPSHOT"]]
+  {:dev {:dependencies [[figwheel "0.1.5-SNAPSHOT"]]
          :source-paths ["dev/clj"]}}
 
   :haml {:src "resources/haml"
