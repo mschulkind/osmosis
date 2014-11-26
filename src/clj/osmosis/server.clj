@@ -10,7 +10,7 @@
 (declare dev?)
 
 (defn sound-filenames []
-  (for [f (read-string (slurp (io/resource "public/sound/manifest.edn")))]
+  (for [f (read-string (slurp (io/resource "sound/manifest.edn")))]
     (let [base (last (re-find #"(.*)\.mp3" f))]
       {:base base :full (str "sound/" f)})))
 
@@ -62,7 +62,7 @@
   (resources "/fonts" {:root "vendor/bootstrap/fonts"})
   (resources "/css" {:root "vendor/bootstrap/css"})
 
-  (resources "/sound" {:root "public/sound"})
+  (resources "/sound" {:root "sound"})
 
   (GET "/*" req (page)))
 

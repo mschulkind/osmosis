@@ -1,10 +1,11 @@
 #!/bin/bash
-OUT_DIR=../../resources/public/sound
+OUT_DIR=../../resources/sound
 MANIFEST=${OUT_DIR}/manifest.edn
+
+mkdir -p $OUT_DIR
 
 echo "[" > $MANIFEST
 
-mkdir -p $OUT_DIR
 for i in *.wav; do 
   OUT_FILE_BASE=$(basename ${i%%.wav}).mp3
 
