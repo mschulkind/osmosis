@@ -1,4 +1,4 @@
-(ns osmosis.core
+(ns osmosis.controller
   (:require [osmosis.view :as view]
             [osmosis.player :as player]))
 

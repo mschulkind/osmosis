@@ -19,30 +19,43 @@
   :plugins [[lein-cljsbuild "1.0.3"]
             [lein-figwheel "0.1.5-SNAPSHOT"]
             [com.cemerick/austin "0.1.4"]
-            [lein-haml-sass "0.2.7-SNAPSHOT"]
-            [lein-environ "1.0.0"]]
+            [lein-haml-sass "0.2.7-SNAPSHOT"]]
 
   :main osmosis.core
 
+  :uberjar-name "osmosis.jar"
+
   :profiles 
   {:dev {:dependencies [[figwheel "0.1.5-SNAPSHOT"]]
-         :source-paths ["dev/clj"]}}
+         :source-paths ["dev/clj"]
+         :cljsbuild {:builds {:app {:source-paths ["dev/cljs"]}}}} 
 
-  :haml {:src "resources/haml"
-         :output-directory "resources/public/"}
+   :uberjar {:hooks [leiningen.cljsbuild
+                     ]
+             :source-paths ["prod/clj"]
+             :prep-tasks [["haml-sass" "once"] "javac" "compile"]
+             :omit-source true
+             :aot :all
+             :cljsbuild {:builds {:app {:source-paths ["prod/cljs"]
+                                        :compiler {
+                                                   :optimizations :advanced
+                                                   :pretty-print false}}}}}}
 
-  :sass {:src "resources/sass"
+  :haml {:src "src/haml"
+         :output-directory "resources/public/html"}
+         
+
+  :sass {:src "src/sass"
          :output-directory "resources/public/css"}
 
   :cljsbuild 
-  {:builds [{:id "dev" 
-             :source-paths ["src/cljs" 
-                            "dev/cljs" 
-                            "../overtone/generated/src/cljs"]
-             :compiler {:output-to "resources/public/js/application.js"
-                        :output-dir "resources/public/js/"
-                        :optimizations :none
-                        :source-map true}}]}
+  {:builds {:app {:source-paths ["src/cljs" 
+                                 "../overtone/generated/src/cljs"]
+                  :compiler 
+                  {:output-to "resources/public/js/application.js"
+                   :output-dir "resources/public/js/"
+                   :optimizations :none
+                   :source-map "resources/public/js/application.js.map"}}}}
 
   :figwheel {:http-server-root "public"
              :server-port 3449

@@ -1,39 +1,56 @@
 (ns osmosis.server
   (:require [clojure.java.io :as io]
+            [clojure.string :as string]
             [compojure.core :refer [GET defroutes]]
             [compojure.route :refer [resources]]
             [compojure.handler :refer [api]]
             [net.cgrand.enlive-html :as en]
-            [net.cgrand.reload]
             [ring.adapter.jetty :refer [run-jetty]]))
 
+(declare dev?)
+
 (defn sound-filenames []
-  (for [f (map #(.getName %) 
-               (.listFiles (io/file (io/resource "sound/processed"))))]
+  (for [f (read-string (slurp (io/resource "public/sound/manifest.edn")))]
     (let [base (last (re-find #"(.*)\.mp3" f))]
       {:base base :full (str "sound/" f)})))
 
-(en/deftemplate page (io/resource "public/index.html") []
-  [:body] 
-  (en/append 
-    (en/html [:script {:type "text/javascript"} "goog.require('osmosis.dev')"]))
+(defn resource-path [path]
+  (if dev?
+    path
+    (string/replace path "." ".min.")))
 
+(en/deftemplate page (io/resource "public/html/index.html") []
   [:head]
   (en/do->
     (en/prepend
       (en/html [:link {:rel "stylesheet" 
                        :type "text/css"
-                       :href "css/bootstrap.css"}]))
+                       :href (resource-path "css/bootstrap.css")}]))
 
     (en/append
-      (en/html [:script {:type "text/javascript" :src "js/react.js"}]))
+      (en/html [:script {:type "text/javascript" 
+                         :src (resource-path "js/react.js")}]))
     
     (en/append
       (en/html
         (for [f (sound-filenames)]
           [:audio {:src (:full f) 
                    :preload "auto" 
-                   :id (str "sample-" (:base f))}])))))
+                   :id (str "sample-" (:base f))}])))
+    
+    (if dev?
+      (en/append
+        (en/html [:script {:type "text/javascript"
+                           :src "js/goog/base.js"}]))
+      identity))
+  
+  [:body]
+  (if dev?
+    (en/append
+      (en/html 
+        [:script {:type "text/javascript"} 
+         "goog.require('osmosis.core')"]))
+    identity))
 
 (defroutes routes
   (resources "/css" {:root "public/css"})
@@ -45,12 +62,12 @@
   (resources "/fonts" {:root "vendor/bootstrap/fonts"})
   (resources "/css" {:root "vendor/bootstrap/css"})
 
-  (resources "/sound" {:root "sound/processed"})
+  (resources "/sound" {:root "public/sound"})
 
   (GET "/*" req (page)))
 
-(defn run [create-http-handler]
+(defn run [d? create-http-handler]
+  (def dev? d?)
   (let [port 4200]
-    (net.cgrand.reload/auto-reload *ns*)
     (print "Starting web server on port" port ".\n")
-    (run-jetty (create-http-handler #'routes) {:port port :join? false})))
+    (run-jetty (create-http-handler (api #'routes)) {:port port :join? false})))
