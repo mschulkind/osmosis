@@ -12,7 +12,6 @@
                  [org.clojure/clojurescript "0.0-2371"]
                  [compojure "1.2.1"]
                  [enlive "1.1.5"]
-                 [overtone "0.10-SNAPSHOT"]
                  [prismatic/plumbing "0.3.5"]
                  [ring "1.3.1"]
                  [reagent "0.4.3"]
