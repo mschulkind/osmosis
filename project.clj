@@ -6,6 +6,8 @@
 
   :min-lein-version "2.0.0"
 
+  :resource-paths ["lib/overtone-0.10-SNAPSHOT.jar" "resources/"]
+
   :source-paths ["src/clj"]
 
   :dependencies [[org.clojure/clojure "1.6.0"]
@@ -13,6 +15,7 @@
                  [compojure "1.2.1"]
                  [enlive "1.1.5"]
                  [prismatic/plumbing "0.3.5"]
+                 [overtone "0.10-SNAPSHOT"]
                  [ring "1.3.1"]
                  [reagent "0.4.3"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]]
@@ -50,8 +53,7 @@
          :output-directory "resources/public/css"}
 
   :cljsbuild 
-  {:builds {:app {:source-paths ["src/cljs" 
-                                 "../overtone/generated/src/cljs"]
+  {:builds {:app {:source-paths ["src/cljs"]
                   :compiler 
                   {:output-to "resources/public/js/application.js"
                    :output-dir "resources/public/js/"
