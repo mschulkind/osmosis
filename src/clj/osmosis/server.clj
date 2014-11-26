@@ -68,6 +68,6 @@
 
 (defn run [d? create-http-handler]
   (def dev? d?)
-  (let [port 4200]
+  (let [port (if dev? 4200 (read-string (System/getenv "PORT")))]
     (print "Starting web server on port" port ".\n")
     (run-jetty (create-http-handler (api #'routes)) {:port port :join? false})))
