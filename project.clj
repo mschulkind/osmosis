@@ -14,7 +14,7 @@
                  [org.clojure/clojurescript "0.0-2371"]
                  [compojure "1.2.1"]
                  [enlive "1.1.5"]
-                 [prismatic/plumbing "0.3.5"]
+                 [prismatic/plumbing "0.3.5" :exclusions [potemkin]]
                  [overtone "0.10-SNAPSHOT"]
                  [ring "1.3.1"]
                  [reagent "0.4.3"]
@@ -30,7 +30,8 @@
   :uberjar-name "osmosis.jar"
 
   :profiles 
-  {:dev {:dependencies [[figwheel "0.1.5-SNAPSHOT"]]
+  {:dev {:dependencies [[leiningen "2.5.0"]
+                        [figwheel "0.1.5-SNAPSHOT"]]
          :source-paths ["dev/clj"]
          :cljsbuild {:builds {:app {:source-paths ["dev/cljs"]}}}} 
 

@@ -4,7 +4,8 @@
             [net.cgrand.reload]
             [ring.middleware.reload]
             [compojure.handler :refer [api]]
-            [cljs.repl.browser :as browser]))
+            [cljs.repl.browser :as browser]
+            [leiningen.core.main :as lein]))
 
 (defn browser-repl []
   (piggieback/cljs-repl
@@ -15,4 +16,5 @@
 
 (defn -main []
   (net.cgrand.reload/auto-reload (the-ns 'osmosis.server))
+  (future (lein/-main ["figwheel"]))
   (server/run true create-http-handler))
